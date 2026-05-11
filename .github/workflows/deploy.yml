@@ -1,0 +1,35 @@
+# test01/.github/workflows/deploy.yml
+
+name: 'Terraform & Ansible CI/CD'
+on:
+  push:
+    branches: ["master"] # master 브랜치에 push가 될 때마다 실행하겠다
+jobs:
+  deploy:
+    runs-on: utuntu-latest # 최신 ubuntu machine을 잠시 빌려서 아래의 작업을 하겠다
+    # ubuntu machine의 환경 변수에 넣어줄 값을 셋팅
+    # 우리가 mgmt 서버에 aws configure를 실행해서 키를 등록했듯 1회용 ubuntu 서버에도 동일한 작업을 해준다
+    # job 안의 모든 step에서 등록된 aws 키를 공통으로 사용하게 된다
+    env: 
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # 이게 동작하기 위해서는 github에 secrets가 등록이 되어 있어야한다.
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        
+      - name: terraform init & apply
+        run: |
+          terraform init
+          terraform apply --auto-approve
+
+      - name: setup ssh key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: run ansible playbook
+        run: |
+          ansible-playbook nginx_setup.yml
