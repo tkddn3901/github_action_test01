@@ -6,7 +6,7 @@ on:
     branches: ["master"] # master 브랜치에 push가 될 때마다 실행하겠다
 jobs:
   deploy:
-    runs-on: utuntu-latest # 최신 ubuntu machine을 잠시 빌려서 아래의 작업을 하겠다
+    runs-on: ubuntu-latest # 최신 ubuntu machine을 잠시 빌려서 아래의 작업을 하겠다
     # ubuntu machine의 환경 변수에 넣어줄 값을 셋팅
     # 우리가 mgmt 서버에 aws configure를 실행해서 키를 등록했듯 1회용 ubuntu 서버에도 동일한 작업을 해준다
     # job 안의 모든 step에서 등록된 aws 키를 공통으로 사용하게 된다
